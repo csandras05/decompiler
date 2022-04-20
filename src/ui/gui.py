@@ -1,10 +1,8 @@
-from faulthandler import disable
-
 import PySimpleGUI as sg  # type: ignore
 from model.model import Decompiler
 
 
-class View:
+class GUI:
     def __init__(self, model: Decompiler):
         self.model = model
         layout = [[sg.Multiline(key='-INPUT-', disabled=True, size=(40, 20)),
