@@ -7,6 +7,8 @@
 	%final, % Set final to hide todos
 ]{elteikthesis}[2021/09/20]
 
+\usepackage{url}
+
 % The minted package is also supported for source highlighting
 % See minted-intregration.tex for example
 %\usepackage[newfloat]{minted}
@@ -58,10 +60,7 @@
 \input{chapters/intro.tex}
 \cleardoublepage
 
-\input{chapters/decomp.tex}
-\cleardoublepage
-
-\input{chapters/nlp.tex}
+\input{chapters/nmt.tex}
 \cleardoublepage
 
 \input{chapters/user.tex}
@@ -90,20 +89,5 @@
 \addcontentsline{toc}{chapter}{\lsttablelabel}
 \listoftables
 \cleardoublepage
-
-% List of algorithms (optional) - useful over 3-5 algorithms
-\phantomsection
-\addcontentsline{toc}{chapter}{\lstalgorithmlabel}
-\listofalgorithms
-\cleardoublepage
-
-% List of codes (optional) - useful over 3-5 code samples
-\phantomsection
-\addcontentsline{toc}{chapter}{\lstcodelabel}
-\lstlistoflistings
-\cleardoublepage
-
-% List of symbols (optional)
-%\printnomenclature
 
 \end{document}
