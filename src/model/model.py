@@ -1,13 +1,10 @@
 import os
-import random
-import re
 import subprocess
-from typing import Any, List
 
-import utils
-from flax_models.segmentation import Segmentation, SegmentationModel
-from flax_models.translation import Seq2seq, Translation
-from reconstruct import reconstruct
+from model import utils
+from model.flax_models.segmentation import Segmentation, SegmentationModel
+from model.flax_models.translation import Seq2seq, Translation
+from model.reconstruct import reconstruct
 
 
 class Decompiler:

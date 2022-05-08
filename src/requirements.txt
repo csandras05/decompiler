@@ -3,7 +3,6 @@ attrs==21.4.0
 bert-pytorch==0.0.1a4
 chex==0.1.2
 cycler==0.11.0
--e git+https://github.com/csandras05/decompiler.git@6884282b39c718af653427c3d52f4b804a878aa2#egg=decompiler&subdirectory=src/model
 dm-tree==0.1.7
 flatbuffers==2.0
 flax==0.4.1

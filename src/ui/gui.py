@@ -6,16 +6,16 @@ class GUI:
     def __init__(self, model: Decompiler):
         self.model = model
         layout = [[sg.Multiline(key='-INPUT-', disabled=True, size=(40, 20)),
-                        sg.Multiline(key='-OUTPUT-', disabled=True, size=(40, 20))],
-          
-                       [sg.Input(key='-FILE-'),
-                        sg.FileBrowse(),
-                        sg.Button('Submit')],
-          
-                       [sg.Button('Decompile', disabled=True),
-                        sg.Button('Segmentation', disabled=True),
-                        sg.Button('Masked C', disabled=True),
-                        sg.Button('Reconstructed C', disabled=True)]]
+                   sg.Multiline(key='-OUTPUT-', disabled=True, size=(40, 20))],
+        
+                  [sg.Input(key='-FILE-'),
+                   sg.FileBrowse(),
+                   sg.Button('Submit')],
+        
+                  [sg.Button('Decompile', disabled=True),
+                   sg.Button('Segmentation', disabled=True),
+                   sg.Button('Masked C', disabled=True),
+                   sg.Button('Reconstructed C', disabled=True)]]
         
         self.window = sg.Window('Decompilaton', layout)
 
