@@ -5,6 +5,7 @@ import numpy as np
 import optax
 from flax.training import train_state
 from jax import numpy as jnp
+from matplotlib import pyplot as plt
 from model import utils
 from model.flax_models.segmentation import SegmentationModel
 from model.train import training
@@ -33,10 +34,10 @@ def compute_metrics(*, logits, labels, lengths):
     }
     return metrics
 
-def create_train_state(rng, learning_rate, hidden_size):
+def create_train_state(rng, optimizer, learning_rate, hidden_size, max_len, embedding_size):
     model = SegmentationModel(hidden_size)
-    params = model.init(rng, jnp.ones((1, 90, 128)))['params']
-    tx = optax.adam(learning_rate)
+    params = model.init(rng, jnp.ones((1, max_len, embedding_size)))['params']
+    tx = optimizer(learning_rate)
     return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 
 
@@ -49,40 +50,39 @@ def pad_label(label_data, max_len):
 
 if __name__ == '__main__':
 
-    data = utils.load_json(f'{CUR_DIR}/data.json')      
-
+    data = utils.load_json(f'{CUR_DIR}/data.json')
+    config = utils.load_yaml(f'{CUR_DIR}/segmentation_train.yaml')
+     
     train_x, test_x, train_y, test_y = train_test_split(data['embedding'], data['labels'],
-                                                        test_size=0.2,
+                                                        test_size=config['test_ratio'],
                                                         random_state=0)
     
     train_lengths = jnp.array(list(map(len, train_x)))
     test_lengths = jnp.array(list(map(len, test_x)))
-    
-    max_len = 90 # TODO: config file...
-    
-    train_x = pad_input([jnp.array(d) for d in train_x], max_len)
-    train_y = pad_label([jnp.array(d) for d in train_y], max_len)
-    test_x = pad_input([jnp.array(d) for d in test_x], max_len)
-    test_y = pad_label([jnp.array(d) for d in test_y], max_len)
+        
+    train_x = pad_input([jnp.array(d) for d in train_x], config['max_len'])
+    train_y = pad_label([jnp.array(d) for d in train_y], config['max_len'])
+    test_x = pad_input([jnp.array(d) for d in test_x], config['max_len'])
+    test_y = pad_label([jnp.array(d) for d in test_y], config['max_len'])
     
     rng = jax.random.PRNGKey(0)
-    learning_rate = 0.003 # TODO: config file...
-    hidden_size = 256 # TODO: config file...
-    batch_size = 4 # TODO: config file...
-    num_epochs = 10  # TODO: config file...
-    
-    state = create_train_state(rng=rng, learning_rate=learning_rate, hidden_size=hidden_size)
+    state = create_train_state(rng=rng,
+                               optimizer=training.OPTIMIZERS[config['optimizer']],
+                               learning_rate=config['learning_rate'],
+                               hidden_size=config['hidden_size'],
+                               max_len=config['max_len'],
+                               embedding_size=config['embedding_size'])
     
     train_losses = []
     test_losses = []
     train_accuracies = []
     test_accuracies = []
 
-    for epoch in range(1, num_epochs + 1):
+    for epoch in range(1, config['num_epochs'] + 1):
         rng, input_rng = jax.random.split(rng)
         state, metrics = training.train_epoch(state,
                                               train_x, train_y, train_lengths,
-                                              batch_size, epoch, input_rng,
+                                              config['batch_size'], epoch, input_rng,
                                               binary_cross_entropy_loss,
                                               compute_metrics)
         train_losses.append(metrics['loss'])
@@ -94,9 +94,10 @@ if __name__ == '__main__':
         test_losses.append(test_loss)
         test_accuracies.append(test_accuracy)
         
-        print(f'\ttest epoch: {epoch}, loss: {test_loss}, accuracy: {test_accuracy*100:.2f}')
+        print(f'\ttest epoch: {epoch}, loss: {test_loss:.5f}, accuracy: {test_accuracy*100:.2f}')
 
-    training.visualize(train_losses, test_losses, 'Loss', 'upper right')
-    training.visualize(train_accuracies, test_accuracies, 'Accuracy', 'lower right')
-
+    training.visualize(train_losses=train_losses, test_losses=test_losses,
+                       train_accuracies=train_accuracies, test_accuracies=test_accuracies)
+    
+    
     training.export('segmentation_model_', state.params)

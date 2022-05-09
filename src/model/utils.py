@@ -6,6 +6,7 @@ import subprocess
 import sys
 from typing import Dict, Iterable, List, Union
 
+import yaml
 from jax import numpy as jnp
 
 CUR_DIR = os.path.dirname(__file__)
@@ -79,4 +80,9 @@ def save_as_json(path: str, data: JsonType):
 def load_json(path: str) -> JsonType:
     with open(path, 'r') as f:
         data = json.load(f)
+    return data
+
+def load_yaml(path: str):
+    with open(path, 'r') as f:
+        data = yaml.safe_load(f)
     return data

@@ -1,0 +1,8 @@
+num_epochs: 20
+optimizer: "adam"
+learning_rate: 0.0003
+hidden_size: 128
+batch_size: 8
+max_len: 90
+embedding_size: 128 # Output size of palmtree
+test_ratio: 0.2

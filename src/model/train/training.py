@@ -4,11 +4,30 @@ from datetime import datetime
 
 import jax
 import numpy as np
+import optax
 from flax import serialization
 from jax import numpy as jnp
 from matplotlib import pyplot as plt
 
 CUR_DIR = os.path.dirname(__file__)
+
+OPTIMIZERS = {
+    'adabelief': optax.adabelief,
+    'adafactor': optax.adafactor,
+    'adagrad': optax.adagrad,
+    'adam': optax.adam,
+    'adamw': optax.adamw,
+    'fromage': optax.fromage,
+    'lamb': optax.lamb,
+    'lars': optax.lars,
+    'noisy_sgd': optax.noisy_sgd,
+    'dpsgd': optax.dpsgd,
+    'radam': optax.radam,
+    'rmsporp': optax.rmsprop,
+    'sgd': optax.sgd,
+    'sm3': optax.sm3,
+    'yogi': optax.yogi
+}
 
 def export(name_prefix, params):
     if not os.path.exists(f"{CUR_DIR}/runs"):
@@ -62,13 +81,13 @@ def train_epoch(state, train_x, train_y, train_lengths, batch_size, epoch, rng, 
         batch_metrics.append(metrics)
         progress_bar((i+1) * batch_size, train_ds_size)
 
-
+    print(f'\r{" " * 80}', end='\r')
     batch_metrics_np = jax.device_get(batch_metrics)
     epoch_metrics_np = {
         k: np.mean([metrics[k] for metrics in batch_metrics_np])
         for k in batch_metrics_np[0]
     }
-    print(f'train epoch: {epoch}, loss: {epoch_metrics_np["loss"]}, accuracy: {epoch_metrics_np["accuracy"]*100:.2f}')
+    print(f'train epoch: {epoch}, loss: {epoch_metrics_np["loss"]:.5f}, accuracy: {epoch_metrics_np["accuracy"]*100:.2f}')
     return state, epoch_metrics_np
 
 def eval_model(state, test_x, test_y, test_lengths, metric_fn):
@@ -77,12 +96,19 @@ def eval_model(state, test_x, test_y, test_lengths, metric_fn):
     summary = jax.tree_map(lambda x: x.item(), metrics)
     return summary['loss'], summary['accuracy']
 
-
-
-def visualize(train, test, ylabel, legend_loc):
+def plot(train, test, ylabel, legend_loc):
     plt.plot(train, label="train")
     plt.plot(test, label="test")
     plt.xlabel("Epoch")
     plt.ylabel(ylabel)
     plt.legend(loc=legend_loc)
+
+def visualize(*, train_losses, test_losses, train_accuracies, test_accuracies):
+    plt.figure(figsize=[11, 9]).canvas.set_window_title('Change of loss & accuracy')
+
+    plt.subplot(2, 1, 1)
+    plot(train_losses, test_losses, 'Loss', 'upper right')
+    
+    plt.subplot(2, 1, 2)
+    plot(train_accuracies, test_accuracies, 'Accuracy', 'lower right')
     plt.show()

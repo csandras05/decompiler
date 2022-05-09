@@ -68,25 +68,29 @@ def compute_metrics(*, logits, labels, lengths, token_cnt):
 
 
 def create_train_state(rng,
+                       optimizer,
                        learning_rate: float,
                        hidden_size: int,
                        vocab: Vocab,
-                       max_input_len: int = 40,
-                       max_output_len: int = 40):
+                       max_input_len: int,
+                       max_output_len: int,
+                       embedding_size: int):
   
     model = Seq2seq(hidden_size=hidden_size,
                     vocab_size=vocab.token_cnt,
                     sos_id = vocab.token_to_idx['<SOS>'],
                     max_output_len=max_output_len)
-    params = model.init(rng, jnp.ones((1, max_input_len, 128)))['params']
-    tx = optax.adam(learning_rate)
+    
+    params = model.init(rng, jnp.ones((1, max_input_len, embedding_size)))['params']
+    tx = optimizer(learning_rate)
     return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 
 
 
 if __name__ == '__main__':
 
-    data = utils.load_json(f'{CUR_DIR}/data.json')      
+    data = utils.load_json(f'{CUR_DIR}/data.json')   
+    config = utils.load_yaml(f'{CUR_DIR}/translation_train.yaml')   
 
     indices = [[i for i, x in enumerate(l) if x == 1] for l in data['labels']]
     input = [embedding[cur:nxt]
@@ -95,7 +99,7 @@ if __name__ == '__main__':
     output = sum([masked_c.splitlines()[2:-1] for masked_c in data['masked_c']], [])
     
     train_x, test_x, train_y, test_y = train_test_split(input, output,
-                                                        test_size=0.2,
+                                                        test_size=config['test_ratio'],
                                                         random_state=0)
     vocab = Vocab(train_y)
     
@@ -111,33 +115,39 @@ if __name__ == '__main__':
     
     train_lengths = jnp.array(list(map(lambda x: x.shape[0], train_y_token_ids)))
     test_lengths = jnp.array(list(map(lambda x: x.shape[0], test_y_token_ids)))
+   
     
-    max_len=40
-    train_x_padded = pad_input([jnp.array(d) for d in train_x], max_len)
-    train_y_padded = pad_output([jnp.array(d) for d in train_y_token_ids], max_len)
-    test_x_padded = pad_input([jnp.array(d) for d in test_x], max_len)
-    test_y_padded = pad_output([jnp.array(d) for d in test_y_token_ids], max_len)  
+    train_x_padded = pad_input([jnp.array(d) for d in train_x], config['max_input_len'])
+    train_y_padded = pad_output([jnp.array(d) for d in train_y_token_ids], config['max_output_len'])
+    test_x_padded = pad_input([jnp.array(d) for d in test_x], config['max_input_len'])
+    test_y_padded = pad_output([jnp.array(d) for d in test_y_token_ids], config['max_output_len'])  
 
     rng = jax.random.PRNGKey(0)
-    learning_rate = 0.003
-    num_epochs = 10
-    batch_size = 4
-    hidden_size = 256
 
-    state = create_train_state(rng, learning_rate, hidden_size, vocab)
+    state = create_train_state(rng=rng,
+                               optimizer=training.OPTIMIZERS[config['optimizer']],
+                               learning_rate=config['learning_rate'],
+                               hidden_size=config['hidden_size'],
+                               vocab=vocab,
+                               max_input_len=config['max_input_len'],
+                               max_output_len=config['max_output_len'],
+                               embedding_size=config['embedding_size'])
     
     train_losses = []
     test_losses = []
     train_accuracies = []
     test_accuracies = []
     
-    for epoch in range(1, num_epochs + 1):
+    metric_fn = functools.partial(compute_metrics, token_cnt=vocab.token_cnt)
+    error_fn = functools.partial(cross_entropy_loss, token_cnt=vocab.token_cnt)
+    
+    for epoch in range(1, config['num_epochs'] + 1):
         rng, input_rng = jax.random.split(rng)
         state, metrics = training.train_epoch(state,
                                               train_x_padded, train_y_padded, train_lengths,
-                                              batch_size, epoch, input_rng,
-                                              functools.partial(cross_entropy_loss, token_cnt=vocab.token_cnt),
-                                              functools.partial(compute_metrics, token_cnt=vocab.token_cnt))
+                                              config['batch_size'], epoch, input_rng,
+                                              error_fn,
+                                              metric_fn)
         train_losses.append(metrics['loss'])
         train_accuracies.append(metrics['accuracy'])
         
@@ -147,9 +157,9 @@ if __name__ == '__main__':
         test_losses.append(test_loss)
         test_accuracies.append(test_accuracy)
         
-        print(f'\ttest epoch: {epoch}, loss: {test_loss}, accuracy: {test_accuracy*100:.2f}')
+        print(f'\ttest epoch: {epoch}, loss: {test_loss:.5f}, accuracy: {test_accuracy*100:.2f}')
 
-    training.visualize(train_losses, test_losses, 'Loss', 'upper right')
-    training.visualize(train_accuracies, test_accuracies, 'Accuracy', 'lower right')
+    training.visualize(train_losses=train_losses, test_losses=test_losses,
+                       train_accuracies=train_accuracies, test_accuracies=test_accuracies)
 
     training.export('translation_model_', state.params)
