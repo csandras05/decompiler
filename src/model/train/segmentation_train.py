@@ -42,10 +42,12 @@ def create_train_state(rng, optimizer, learning_rate, hidden_size, max_len, embe
 
 
 def pad_input(input_data, max_len):
-    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)]) for x in input_data])
+    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)])
+                      if max_len > x.shape[0] else x[:max_len] for x in input_data])
 
 def pad_label(label_data, max_len):
-    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0])]) for x in label_data])
+    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0])])
+                      if max_len > x.shape[0] else x[:max_len] for x in label_data])
 
 
 if __name__ == '__main__':

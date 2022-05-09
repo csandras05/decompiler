@@ -35,10 +35,12 @@ class Vocab:
 
 
 def pad_input(input_data, max_len):
-    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)]) for x in input_data])
+    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)])
+                      if max_len > x.shape[0] else x[:max_len] for x in input_data])
 
 def pad_output(output_data, max_len):
-    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0])]) for x in output_data])
+    return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0])])
+                      if max_len > x.shape[0] else x[:max_len] for x in output_data])
 
 
 def mask_sequences(sequence_batch, lengths):
