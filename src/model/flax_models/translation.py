@@ -1,5 +1,6 @@
 import functools
-from typing import Any, List
+import json
+from typing import Any, Dict, List
 
 import jax
 from flax import linen as nn
@@ -87,41 +88,21 @@ class Seq2seq(nn.Module):
         return y    
 
 class Translation:
-    def __init__(self, params_file: str, model: Seq2seq):
+    def __init__(self,
+                 params_file: str,
+                 model: Seq2seq,
+                 vocab: Dict[str, int],
+                 max_input_len: int,
+                 embedding_size: int):
+        
         self.model = model
-        self.token_to_id = {'<PAD>': 0,
-                            '<SOS>': 1,
-                            'VAR': 2,
-                            '=': 3,
-                            'NUM': 4,
-                            ';': 5,
-                            '(': 6,
-                            '%': 7,
-                            ')': 8,
-                            '&': 9,
-                            '/': 10,
-                            '-': 11,
-                            '*': 12,
-                            '^': 13,
-                            '+': 14,
-                            '>>': 15,
-                            '|': 16,
-                            '<<': 17}
+        self.token_to_id = vocab
         self.id_to_token = list(self.token_to_id.keys())
-        
-        # TODO: place these values in a config file
-        self.max_input_len = 36
-        self.max_output_len = 29
+        self.max_input_len = max_input_len
         
         with open(params_file, 'rb') as f:
             params_bin = f.read()
-        init_params = model.init(jax.random.PRNGKey(0), jnp.ones((1, self.max_input_len, 128)))['params']
-        self.params = serialization.from_bytes(init_params, params_bin)
-        
-        with open(params_file, 'rb') as f:
-            params_bin = f.read()
-
-        init_params = model.init(jax.random.PRNGKey(0), jnp.ones((1, 62, 128)))['params']
+        init_params = model.init(jax.random.PRNGKey(0), jnp.ones((1, self.max_input_len, embedding_size)))['params']
         self.params = serialization.from_bytes(init_params, params_bin)
     
     def _id_seq_to_c_line(self, id_seq) -> str:
@@ -130,11 +111,11 @@ class Translation:
         return ' '.join(tokens)
     
     def _pad_input(self, input_data, max_len):
-        return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)]) for x in input_data])
+        return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)])
+                          if x.shape[0] < max_len else x[:max_len] for x in input_data])
     
     def translate(self, embeddings) -> List[str]:
-        padded = self._pad_input(embeddings,
-                                 self.max_input_len)
+        padded = self._pad_input(embeddings, self.max_input_len)
         logits = self.model.apply({'params': self.params}, padded)
         preds = jnp.argmax(logits, axis=-1)
         return list(map(self._id_seq_to_c_line, preds))

@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 
@@ -6,10 +7,11 @@ from model.flax_models.segmentation import Segmentation, SegmentationModel
 from model.flax_models.translation import Seq2seq, Translation
 from model.reconstruct import reconstruct
 
+CUR_DIR = os.path.dirname(__file__)
 
 class Decompiler:
     
-    def __init__(self):
+    def __init__(self, config):
         self.asm = None
         self.asm_embeddings = None
         self.segmentation_indices = None
@@ -17,10 +19,26 @@ class Decompiler:
         self.reconstructed_c = None
         
         self.palmtree = utils.load_palmtree()
-        self.segmentation = Segmentation(f'{os.path.dirname(__file__)}/flax_models/segmentation.params',
-                                         SegmentationModel(hidden_size=256))
-        self.translation = Translation(f'{os.path.dirname(__file__)}/flax_models/translation.params',
-                                       Seq2seq(256, 18, 1, 29)) # TODO: place values in a conf file
+        
+        segmentation_model = SegmentationModel(hidden_size=config['segmentation']['hidden_size'])
+        self.segmentation = Segmentation(params_file=f"{CUR_DIR}/{config['segmentation']['model_path']}",
+                                         model=segmentation_model,
+                                         max_len=config['segmentation']['max_len'],
+                                         embedding_size=config['embedding_size'])
+        
+        with open(f"{CUR_DIR}/{config['translation']['vocab_path']}", 'r') as f:
+            vocab = json.load(f)
+        
+        translation_model = Seq2seq(hidden_size=config['translation']['hidden_size'],
+                                    vocab_size=len(vocab),
+                                    sos_id=vocab['<SOS>'],
+                                    max_output_len=config['translation']['max_output_len'])
+        self.translation = Translation(params_file=f"{CUR_DIR}/{config['translation']['model_path']}",
+                                       model=translation_model,
+                                       vocab=vocab,
+                                       max_input_len=config['translation']['max_input_len'],
+                                       embedding_size=config['embedding_size'])
+                                       
     
     def decompile(self):
         self.segmentation_indices = self.segmentation.get_segmentation(self.asm_embeddings)
@@ -47,17 +65,6 @@ class Decompiler:
         return self.reconstructed_c
     
     def open_binary_file(self, filename: str) -> str:
-        """Open and extract the X86 assembly from the binary of a gcc compiled C code
-
-            Disassembling the binary file using objdump and then extracting the assembly
-            instructions corresponding to the main function using regexp
-
-        Args:
-            filename (str): gcc compiled C code (e.g. a.out)
-
-        Returns:
-            str: X86 assembly instructions of the main function
-        """
         objdumped = utils.objdump(binary=filename,
                                   flags='-S -l --no-show-raw-insn -M intel',
                                   output=subprocess.PIPE).stdout.decode()

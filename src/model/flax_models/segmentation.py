@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import List
 
 import jax
 from flax import linen as nn
@@ -33,13 +33,16 @@ class SegmentationModel(nn.Module):
     return nn.sigmoid(y)
 
 class Segmentation:
-    def __init__(self, params_file: str, model: SegmentationModel):
+    def __init__(self, params_file: str,
+                 model: SegmentationModel,
+                 max_len: int,
+                 embedding_size: int):
         self.model = model
         
         with open(params_file, 'rb') as f:
             params_bin = f.read()
 
-        init_params = model.init(jax.random.PRNGKey(0), jnp.ones((1, 90, 128)))['params']
+        init_params = model.init(jax.random.PRNGKey(0), jnp.ones((1, max_len, embedding_size)))['params']
         self.params = serialization.from_bytes(init_params, params_bin)
     
     def get_segmentation(self, embeddings) -> List[int]:
