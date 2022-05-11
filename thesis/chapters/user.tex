@@ -2,3 +2,149 @@
 \label{ch:user}
 
 A program \texttt{Ubuntu 20.04} operációs rendszer alatt fut. A futtasához szükség van \texttt{Python 3.10.4}-re, valamint több könyvtárra, ezeket a \texttt{requirements.txt} fájl tartalmazza, melyeket a \texttt{pip} csomagkezelő segítségével könnyen feltelepíthetünk az alábbi paranccsal: \texttt{pip install -r requirements.txt}
+
+A programnak alapvetően két felhasználási módja van, egyrészt lehet saját
+adatokkal tanítani a szegmentálást és a maszkolt C kód előállítását végző
+modelleket, másrészt két, nagyszámú adaton előre betanított modellt használva
+egy grafikus felület segítségével van lehetőség a lefordított C kódok
+visszafejtésére.
+
+\section{Tanítás}
+\subsection{Adatok}
+A tanítási adatok egyszerű C fájlok, melyeket a \texttt{model/train/raw\_data}
+mappába kell elhelyezni. Ezekből a nyers adatokból még ki kell nyerni
+a tanításhoz szükséges információkat, ezt a \texttt{model/train/features.py}
+script futtatásával tudjuk megtenni. Ez az előfeldogozott adatokat egy
+\texttt{json} fájlba menti ki, ezt fogjuk a tanítások során majd használni
+
+\subsection{Szegmentálás és fordítás tanítása}
+A tanítási folyamatot a \texttt{model/train/segmentation\_train.py}, illetve
+\texttt{model/train/translation\_train.py} program
+futtatásával tudjuk elindítani. Ha nincs a gépünkön TPU vagy GPU, akkor először
+egy figyelmeztető üzenetet ír ki a \texttt{Flax} könyvtár, hogy CPU-n fog futni
+a program. Ezt követően a \texttt{Jax} könyvtár ír ki egy figyelmeztető
+üzenetet, ez a könyvtár belső működésére vonatkozik, nyugodtan figyelmen kívül
+hagyhatjuk.
+
+Ezután megjelenik egy folyamatjelző sáv, ami a felhasználó számára
+jelzi, hogy az adott epoch-ban az adatok hányadrészét dolgozta fel eddig
+a modell. Az epoch végén kiírja, hogy mennyi volt a hibája és a pontossága
+a modellnek a tanító adatokon, majd a ugyanezt a tesztadatokra.
+
+A program futása végén egy új ablakban megnyílik egy grafikon, ami külön
+a tanító és teszt példákra szemlélteti, hogy a tanítás során mekkora volt
+a modell hibája és pontossága. A felugró ablakot bezárva megjelenik egy üzenet,
+hogy a betanított modell milyen néven került elmentésre. A betanított
+modellek a \texttt{model/train/runs} mappában érhetőek el. 
+
+\subsubsection{Szegmentálás konfigurálása}
+
+A szegementálás tanítása során használt paramétereket
+a \texttt{model/train/segmentation\_train.yaml} fájlban lehet konfigurálni.
+A felhasználó az alábbi beállításokat tudja módosítani:
+\begin{itemize}
+    \item \texttt{num\_epochs}: A tanulási iterációk száma, azt adja meg, hogy
+        a modell összesen hányszor "látja" a teljes tanítóhalmazt. az
+        alapértelmezett érték $10$.
+    \item \texttt{optimizer}: A tanítási folyamat során milyen optimalizálót
+        használjon a modell, az \texttt{optax}\cite{TODO} könyvtár
+        alapértelmezett optimalizálói közül lehet választani. Az
+        alapértelmezett érték \texttt{"adam"}\cite{TODO}.
+    \item \texttt{learning\_rate}: A tanulási ráta, azt szabályozza, hogy
+    a gradiens módszer során milyen mértékben változtassa paramétereit
+    a modell. Az alapértelmezett érték $0.003$.
+    \item \texttt{hidden\_size}: Az \texttt{LSTM} által használt rejtett vektor
+        mérete, az alapértelmezett érték $256$.
+    \item \texttt{batch\_size}: A részmintaméret, azt lehet beállítani vele, hogy
+        egy tanítási lépés során egyszerre hány adattal dolgozzon a modell. Az
+        alapértelmezett érték $4$.
+    \item \texttt{max\_len}: A bemenet, vagyis, hogy hány sor Assembly-ből áll
+        a program maximális hossza. Az alapértelmezett érték $90$.
+    \item \texttt{embedding\_size}: A begyazás után hány dimenziós vektort
+        kapunk. Alapvetően a beágyazást egy előre betanított \texttt{Palmtree}
+        modell végzi, ami $128$ dimenziós vektorokkal dolgozik, így az
+        alapértelmezett érték $128$, amit csak a \texttt{Palmtree} módosítása
+        esetén változtassunk.
+    \item \texttt{test\_ratio}: Az összes adat hányadrésze legyen a teszthalmaz
+        (a maradék adat adja a tanítóhalmazt). Az alapértelmezett érték $0,2$.
+\end{itemize}
+
+\subsubsection{Fordítás konfigurálása}
+
+A fordítás tanítása során használt paramétereket
+a \texttt{model/train/translation\_train.yaml} fájlban lehet konfigurálni.
+A felhasználó az alábbi beállításokat tudja módosítani:
+\begin{itemize}
+    \item \texttt{num\_epochs}: Ld. szegmentálás konfigurálása.
+    \item \texttt{optimizer}: Ld. szegmentálás konfigurálása.
+    \item \texttt{learning\_rate}: Ld. szegmentálás konfigurálása.
+    \item \texttt{hidden\_size}: Ld. szegmentálás konfigurálása.
+    \item \texttt{batch\_size}: Ld. szegmentálás konfigurálása.
+    \item \texttt{max\_input\_len}: A bemenet, vagyis, hogy hány sor
+        Assembly-ből áll egy visszafordítandó blokk, maximális hossza. Az
+        alapértelmezett érték $40$.
+    \item \texttt{max\_output\_len}: A kimenet, vagyis, hogy hány token-ből
+        állhat a visszafordítás során kapott maszkolt C kód maximális hossza.
+        Az alapértelmezett érték $40$.
+    \item \texttt{test\_ratio}: Ld. szegmentálás konfigurálása.
+\end{itemize}
+
+\section{Betanított modell használata}
+\subsection{Grafikus interfész}
+A \texttt{main.py} programot futtatva egyrészt megjelennek a korábban írt
+figyelmeztető üzenetek a konzolon, másrészt egy új ablakban a program grafikus
+felülete. Itt a \texttt{Browse} gombra kattintva kiválaszthatjuk
+a visszafejteni kívánt fájlt, majd ezt a \texttt{Submit} gombra kattintva
+tudjuk betölteni. Ekkor a baloldai szövegdobozban megjelenik a kiválasztott futtaható
+állományból kinyert Assembly kód. Ezután a \texttt{Decompile} gombra kattintva
+megkezdődik a kód visszafordítása, ami az eredeti C kód bonyolultságától
+függően néhány másodperctől fél percig tart. Ezután megnézhetjük, hogy
+a bevezetésben leírt lépesek hogy zajlottak. a \texttt{Segmentation} gombra
+kattintva a jobboldali szövegdobozban megjelenik a feldarabolt Assembly,
+a blokkokat egy-egy üres sor választja el. A \texttt{Masked C} gombra kattintva
+megjelenik az eredeti C kód "sablonja", itt még az összes változó helyén
+a \texttt{VAR} token, a számliterálok helyén pedig a \texttt{NUM} token
+szerepel. A \texttt{Reconstructed C} gombra kattintva pedig az iteratív
+rekonstruálás során visszafejtett C kód jelenik meg a szövegdobozban, ami
+szerkezetében megegyezik\footnote{A betanított modellek nem $100\%$
+pontosságúak, így nem garantált, hogy mindig sikeres lesz a visszafordítás.} az
+eredeti C kóddal.
+
+\subsection{Konzolos interfész}
+Ha a főprogramot a \texttt{--gui=False} argumentummal futtatjuk, akkor egy
+konzolos interfész segítségével is kipróbálhatjuk a program működését. Először
+megjelennek a szokásos figyelmeztető üzenetek, majd a program bekéri
+a visszafejtendő fájl nevét. Ide ha az \texttt{exit} parancsot írjuk, akkor
+leáll a program futása. Ha nem létező fájlnevet adunk meg vagy nem megfelelő
+formátumű a fájl, akkor a program egy
+\texttt{TODO} hibaüzenetet ír ki. Ha létezik a fájl és megfelelő formátumú,
+akkor a program rögtön elkezdi a visszafordítást, ez általában egy pár
+másodperces folyamat, bonyolultabb programok esetén kicsivel több.
+
+\subsection{A modell konfigurálása}
+A modell különböző paramétereit a \texttt{model/model\_config.yaml} fájlban
+lehet konfigurálni. A felhasználó az alábbi beállításokat tudja módosítani:
+\begin{itemize}
+    \item \texttt{segmentation/model\_path}: A szegmentálás során használt
+        modell relatív elérési útvonala. Az alapértelmezett érték
+        \texttt{"flax\_models/segmentation.params"}, ez egy előre, sok adaton
+        betanított modell. A felhasználónak lehetősége van a tanítási folyamat
+        során elmentett modellek betöltésére is, ekkor annak a relatív elérési
+        útvonalát kell megadni.
+    \item \texttt{segmentation/hidden\_size}: Ld. szegmentálás konfigurálása.
+    \item \texttt{segmentation/max\_len}: Ld. szegmentálás konfigurálása.
+    \item \texttt{translation/model\_path}: A fordítás során használt modell
+        relatív elérési útvonala. Az alapértelmezett érték
+        \texttt{"flax\_models/translation.params"}, ez egy előre, sok adaton
+        betanított modell. A szegmentáláshoz hasonlóan itt is van lehetőség
+        a felhasználó által betanított modellek betöltésére az útvonal
+        módosításával.
+    \item \texttt{translation/vocab\_path}: Ide egy json formátumú fájl elérési
+        útvonalát kell megadni, ami egy szótárat tartalmaz, melyben szerepel,
+        hogy a lehetséges kimeneti tokeneket milyen számra képezzük. Az
+        alapértelmezett érték \texttt{"flax\_models/vocab.json"}.
+    \item \texttt{hidden\_size}: Ld. szegmentálás konfigurálása.
+    \item \texttt{max\_input\_len}: Ld. fordítás konfigurálása.
+    \item \texttt{max\_output\_len}: Ld. fordítás konfigurálása.
+\end{itemize}
+
