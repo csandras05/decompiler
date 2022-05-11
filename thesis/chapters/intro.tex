@@ -15,7 +15,7 @@ történik a futtatható állományból, erre az \texttt{objdump} eszközt haszn
 \subsection{Assembly szegmentálás}
 A visszafejtés első lépésében történik az Assembly kód szegmentálása, ahol
 a cél, hogy úgy daraboljuk fel a kódot egymás utáni blokkokra, hogy egy-egy ilyen blokk egy
-sor C kódnak feleljen meg. Ehhez egy \texttt{LSTM}\cite{??} cellákból álló
+sor C kódnak feleljen meg. Ehhez egy \texttt{LSTM}\cite{lstm} cellákból álló
 rekurrens neurális hálót használok. (TODO: Ábra) A modell bemenete az Assembly sorok,
 a kimenete pedig minden sorra $1$, ha ott kezdődik egy blokk, $0$ egyébként. Ez
 egy bináris klasszifikációs probléma, melyet a modell könnyedén megtanult.
@@ -81,13 +81,20 @@ nagyon megnő, ezáltal a program futási ideje is sokkal nagyobb lesz, mivel
 minden lehetséges behelyettesítés kipróbálása során le kell fordítani
 a kapott programot.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{images/steps.pdf}
+	\caption{A kódvisszafejtés lépései}
+	\label{fig:steps}
+\end{figure}
+
 \subsection{Assembly beágyazás}
 Az első két lépésben használt modellek valójában nem a nyers Assembly sorokat
 kapják meg bemenetként, hanem az azokból előállított kontextusvektorokat. Ez
 a trükk már régóta ismert a neurális gépi fordítási problémák megoldása során,
-a legismertebb ilyen megoldás a \texttt{Word2Vec}\cite{??}. Ahhoz hasonlóan az
+a legismertebb ilyen megoldás a \texttt{Word2Vec}\cite{word2vec}. Ahhoz hasonlóan az
 Assembly beágyazásnál is cél, hogy a hasonló soroknak közeli vektorokat
 feleltessünk meg, ezzel megkönnyítve a későbbik során a modell tanulási
 folyamatát. Én erre a problémára a \texttt{Palmtree}\cite{palmtree} eszközt használom. Ez
 minden sor Assembly-t egy \texttt{N} dimenziós vektorba képez le. Működési elve
-a \texttt{BERT}\cite{??}-höz hasonló.
+a \texttt{BERT}\cite{bert}-höz hasonló.

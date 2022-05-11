@@ -11,7 +11,7 @@ bekéri a felhasználótól a fájl nevét, majd az eredményt struktúrálva ki
 a konzolra.
 
 A grafikus felület ezzel szemben komplexebb. Az implementálás során
-a \texttt{PySimpleGUI}\cite{TODO} könyvtárat használtam, melynek segítségével
+a \texttt{PySimpleGUI}\cite{??} könyvtárat használtam, melynek segítségével
 könnyen lehet grafikus felületű alkalmazásokat készíteni Python nyelven.
 A \texttt{GUI} osztály konstruktorában történik meg a felhasználói felület
 elemeinek létrehozása, melyek a következők:
@@ -22,24 +22,35 @@ elemeinek létrehozása, melyek a következők:
     \item Szövegbeviteli mező (\texttt{TextInput}): Itt lehet megadni
     a betölteni kívánt fájl nevét. Ez alapvetően inaktív, a szövegbevitelt egy
     fájlkereső biztosítja.
-    \item Fájlkereső (\texttt{FileBrowswer}): Ez
-    \item Gomb: 
+    \item Fájlkereső (\texttt{FileBrowswer}):
+    \item Gomb (\texttt{Button}): 
 \end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\input{images/file-system.tex}
+	\caption{A kódbázis felépítése}
+	\label{fig:file-system}
+\end{figure}
 
 \section{Gépi tanulási modellek}
 
 \subsection{Jax \& Flax}
-Ma már rengeteg különböző magas szintű könyvtár érhető el a \texttt{Python} nyelvhez, melyek megkönnyítik a mélytanulási algoritmusok implementálást. Én ezek közül a Google által fejlesztett \texttt{Jax}-et\cite{jax2018github} és az arra épülő \texttt{Flax}-et\cite{flax2020github} használtam.
+Ma már rengeteg különböző magas szintű könyvtár érhető el a \texttt{Python} nyelvhez, melyek 
+megkönnyítik a mélytanulási algoritmusok implementálást. Én ezek közül a Google által fejlesztett \texttt
+{Jax}-et\cite{jax2018github} és az arra épülő \texttt{Flax}-et\cite{flax2020github} használtam.
 
-A Jax könyvtár két legfőbb komponense a gyorsított lineáris algebra (\texttt{XLA}) és az automatikus differenciálás. Mindkettő nagyban hozzájárul ahhoz, hogy könnyebben és gyorsabban lehessen különböző gépi tanulási algoritmusokat és modelleket implementálni, ezzel gyorsítva az ezirányú kutatásokat.
+A Jax könyvtár két legfőbb komponense a gyorsított lineáris algebra (\texttt{XLA}) és az automatikus 
+differenciálás. Mindkettő nagyban hozzájárul ahhoz, hogy könnyebben és gyorsabban lehessen különböző 
+gépi tanulási algoritmusokat és modelleket implementálni, ezzel gyorsítva az ezirányú kutatásokat.
 
-A gépi tanulási algoritmusok során nagyon sok lineáris algebrai műveletet (pl. mátrixszorzás) kell végezni, így elenghetetlen, hogy ezeket minél gyorsabban elvégezzük. Ebben segít az \texttt{XLA}, ami egy doménspecifikus fordító, célja, segítségével a lineáris algebrai műveletek elvé 
+A gépi tanulási algoritmusok során nagyon sok lineáris algebrai műveletet (pl. mátrixszorzás) kell 
+végezni, így elenghetetlen, hogy ezeket minél gyorsabban elvégezzük. Ebben segít az \texttt{XLA}, ami 
+egy doménspecifikus fordító, célja, segítségével a lineáris algebrai műveletek elvé 
 
 \subsection{tanítási folyamat}
 A tanítási folyamat leírását a \texttt{model/train/training.py} fájl
 taralmazza. A szegmentálás és a fordítás tanítása során is ezen modul
 metódusait hívja a program.
 
-A \texttt{train_step} metódus egy tanítási lépés folyamatát írja le.
-
-\cite{palmtree}
+A \texttt{train\_step} metódus egy tanítási lépés folyamatát írja le.

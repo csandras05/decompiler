@@ -10,7 +10,8 @@
 \epstopdfsetup{outdir=./}
 
 \usepackage{url}
-
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
 % The minted package is also supported for source highlighting
 % See minted-intregration.tex for example
 %\usepackage[newfloat]{minted}
@@ -81,12 +82,6 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{\lstfigurelabel}
 \listoffigures
-\cleardoublepage
-
-% List of tables (optional) - useful over 3-5 tables
-\phantomsection
-\addcontentsline{toc}{chapter}{\lsttablelabel}
-\listoftables
 \cleardoublepage
 
 \end{document}
