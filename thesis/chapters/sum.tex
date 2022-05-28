@@ -1,2 +1,22 @@
 \chapter{Összegzés}
 \label{ch:sum}
+Dolgozatomban egy olyan programot mutattam be, melynek segítségével lehetőség van
+a bináris állományból az eredeti C kód visszaállítására neurális hálók segítségével.
+A kódvisszafejtés három fő lépésben történik, ezek közül az első kettő használ
+neurális hálókat.
+
+Előkészítésként a futtaható állományból egy bináris elemzővel kinyerjük az Assembly kódot.
+Ezután az első lépés, hogy ezt blokkokra bontjuk, ahol egy blokk egy sor C kódnak felel meg,
+itt a blokkok meghatározását végzi egy neurális háló. Második lépésként ezen blokkokból előállítunk
+egy sablon kódot, ahol a változók és a számliterálok konkrét értékei még nem ismertek. Ezen lépés
+hasonlít leginkább a neurális gépi fordítás során használt modellekre. Végül harmadik lépésként az
+Assembly-ből kinyert változók és számok behelyettesítésével a második lépésben előállított maszkolt C
+kódba visszakapjuk az eredeti C kódot.
+
+A program futtatása során lehetőség van a fentiek kipróbálására grafikus és konzolos felületen is,
+valamint saját adatokkal a neurális hálók tanítására.
+
+A program további fejlesztésére még sok lehetőség van, egyrészt a használt nyelvtan bővítése
+(pl. \texttt{if-else}, \texttt{while} utasítások, függvényhívások stb.), másrészt a pontosság
+növelése érdekében komplexebb modellek használata.
+

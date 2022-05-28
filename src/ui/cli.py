@@ -6,11 +6,16 @@ class CLI:
         self.model = model
         
     def run(self):
-        print('path to binary file: ', end='')
-        filename = input()
-        asm = self.model.open_binary_file(filename)
-        self.model.decompile()
-        output = f"""
+        filename = input('path to binary file: ')
+        match filename:
+            case 'exit':
+                print("Closing program...")
+            case _:
+                try:
+                    asm = self.model.open_binary_file(filename)
+                    print("Decompiling code...\nIt may take a few seconds.")
+                    self.model.decompile()
+                    output = f"""
 ORIGINAL:
 {asm}
 
@@ -23,4 +28,7 @@ MASKED C:
 RECONSTRUCTED C:
 {self.model.get_reconstructed_c()}
         """
-        print(output)
+                    print(output)
+                except AttributeError:
+                    print(f"File '{filename}' not found!")
+                    print("Closing program...")

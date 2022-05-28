@@ -1,0 +1,47 @@
+main():
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:1
+    1129:       endbr64 
+    112d:       push   rbp
+    112e:       mov    rbp,rsp
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:3
+    1131:       mov    DWORD PTR [rbp-0x14],0x2
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:4
+    1138:       mov    DWORD PTR [rbp-0x10],0x5
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:5
+    113f:       mov    edx,DWORD PTR [rbp-0x10]
+    1142:       mov    eax,DWORD PTR [rbp-0x14]
+    1145:       imul   eax,edx
+    1148:       add    eax,0x2a
+    114b:       mov    DWORD PTR [rbp-0xc],eax
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:6
+    114e:       mov    eax,DWORD PTR [rbp-0xc]
+    1151:       and    eax,0x5
+    1154:       mov    DWORD PTR [rbp-0x8],eax
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:7
+    1157:       mov    eax,DWORD PTR [rbp-0x10]
+    115a:       movsxd rdx,eax
+    115d:       imul   rdx,rdx,0x78787879
+    1164:       shr    rdx,0x20
+    1168:       sar    edx,0x3
+    116b:       sar    eax,0x1f
+    116e:       sub    edx,eax
+    1170:       mov    eax,edx
+    1172:       mov    DWORD PTR [rbp-0x4],eax
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:8
+    1175:       mov    eax,DWORD PTR [rbp-0x14]
+    1178:       or     eax,0xfffffffd
+    117b:       mov    DWORD PTR [rbp-0x14],eax
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:9
+    117e:       mov    edx,DWORD PTR [rbp-0x4]
+    1181:       mov    eax,DWORD PTR [rbp-0x4]
+    1184:       imul   eax,edx
+    1187:       mov    edx,DWORD PTR [rbp-0xc]
+    118a:       mov    ecx,0x3
+    118f:       sub    ecx,edx
+    1191:       mov    edx,ecx
+    1193:       add    eax,edx
+    1195:       mov    DWORD PTR [rbp-0x4],eax
+/mnt/c/egyetem/2021-2022-2/decompiler/src/example.c:10
+    1198:       mov    eax,0x0
+    119d:       pop    rbp
+    119e:       ret

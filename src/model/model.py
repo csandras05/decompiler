@@ -1,6 +1,9 @@
 import json
 import os
 import subprocess
+from typing import Any, Dict, List
+
+from jax import numpy as jnp
 
 from model import utils
 from model.flax_models.segmentation import Segmentation, SegmentationModel
@@ -9,14 +12,15 @@ from model.reconstruct import reconstruct
 
 CUR_DIR = os.path.dirname(__file__)
 
+
 class Decompiler:
     
-    def __init__(self, config):
-        self.asm = None
-        self.asm_embeddings = None
-        self.segmentation_indices = None
-        self.masked_c = None
-        self.reconstructed_c = None
+    def __init__(self, config: Dict[str, Any]):
+        self.asm: List[str]
+        self.asm_embeddings: jnp.ndarray
+        self.segmentation_indices: List[int]
+        self.masked_c: List[str]
+        self.reconstructed_c: str
         
         self.palmtree = utils.load_palmtree()
         
@@ -40,7 +44,7 @@ class Decompiler:
                                        embedding_size=config['embedding_size'])
                                        
     
-    def decompile(self):
+    def decompile(self) -> None:
         self.segmentation_indices = self.segmentation.get_segmentation(self.asm_embeddings)
         
         embeddings_blocks = [self.asm_embeddings[cur:nxt] for (cur, nxt) in zip(self.segmentation_indices,
@@ -50,8 +54,10 @@ class Decompiler:
         
         asm_blocks = ['\n'.join(self.asm[cur:nxt]) for (cur, nxt) in zip(self.segmentation_indices,
                                                                          self.segmentation_indices[1:])]
-        
-        self.reconstructed_c = reconstruct.retrieve(self.masked_c, asm_blocks[1:-1])
+        try:
+            self.reconstructed_c = reconstruct.retrieve(self.masked_c, asm_blocks[1:-1])
+        except IndexError:
+            self.reconstructed_c = "An error has occured during the reconstruction phase.\nPlease try decompiling again."
         
         
     def get_segmented_asm(self) -> str:

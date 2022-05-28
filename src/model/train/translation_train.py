@@ -1,15 +1,15 @@
 import functools
 import os
+from typing import Callable, Dict, List
 
 import jax
 import numpy as np
-import optax
 from flax.training import train_state
 from jax import numpy as jnp
 from model import utils
 from model.flax_models.translation import Seq2seq
 from model.train import training
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split  # type: ignore
 
 CUR_DIR = os.path.dirname(__file__)
 
@@ -34,26 +34,38 @@ class Vocab:
 
 
 
-def pad_input(input_data, max_len):
+def pad_input(input_data: List[jnp.ndarray], max_len: int) -> jnp.ndarray:
     return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)])
                       if max_len > x.shape[0] else x[:max_len] for x in input_data])
 
-def pad_output(output_data, max_len):
+def pad_output(output_data: List[jnp.ndarray], max_len: int) -> jnp.ndarray:
     return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0])])
                       if max_len > x.shape[0] else x[:max_len] for x in output_data])
 
 
-def mask_sequences(sequence_batch, lengths):
+def mask_sequences(sequence_batch: jnp.ndarray, lengths: jnp.ndarray) -> jnp.ndarray:
     return sequence_batch * (
         lengths[:, np.newaxis] > np.arange(sequence_batch.shape[1])[np.newaxis])
   
-def cross_entropy_loss(*, logits, labels, lengths, token_cnt):
+  
+def cross_entropy_loss(*,
+                       logits: jnp.ndarray,
+                       labels: jnp.ndarray,
+                       lengths: jnp.ndarray,
+                       token_cnt: int) -> float:
+    
     one_hot_labels = jax.nn.one_hot(labels, num_classes=token_cnt)
     xe = jnp.sum(one_hot_labels * logits, axis=-1)
     masked_xe = jnp.mean(mask_sequences(xe, lengths))
     return -masked_xe
 
-def compute_metrics(*, logits, labels, lengths, token_cnt):
+
+def compute_metrics(*,
+                    logits: jnp.ndarray,
+                    labels: jnp.ndarray,
+                    lengths: jnp.ndarray,
+                    token_cnt: int) -> Dict[str, float]:
+    
     loss = cross_entropy_loss(logits=logits, labels=labels, lengths=lengths, token_cnt=token_cnt)
 
     token_accuracy = jnp.argmax(logits, -1) == labels
@@ -69,14 +81,14 @@ def compute_metrics(*, logits, labels, lengths, token_cnt):
 
 
 
-def create_train_state(rng,
-                       optimizer,
+def create_train_state(rng: jax.random.KeyArray,
+                       optimizer: Callable,
                        learning_rate: float,
                        hidden_size: int,
                        vocab: Vocab,
                        max_input_len: int,
                        max_output_len: int,
-                       embedding_size: int):
+                       embedding_size: int) -> train_state.TrainState:
   
     model = Seq2seq(hidden_size=hidden_size,
                     vocab_size=vocab.token_cnt,
@@ -98,7 +110,7 @@ if __name__ == '__main__':
     input = [embedding[cur:nxt]
              for (embedding, i) in zip(data['embedding'], indices)
              for (cur, nxt) in zip(i[1:], i[2:])]  
-    output = sum([masked_c.splitlines()[2:-1] for masked_c in data['masked_c']], [])
+    output: List[List[str]] = sum([masked_c.splitlines()[2:-1] for masked_c in data['masked_c']], [])
     
     train_x, test_x, train_y, test_y = train_test_split(input, output,
                                                         test_size=config['test_ratio'],

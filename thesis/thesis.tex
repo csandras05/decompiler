@@ -11,6 +11,16 @@
 
 \usepackage{url}
 \usepackage{tikz}
+
+\newlength\myindent
+\setlength\myindent{2em}
+\newcommand\bindent{%
+  \begingroup
+  \setlength{\itemindent}{\myindent}
+  \addtolength{\algorithmicindent}{\myindent}
+}
+\newcommand\eindent{\endgroup}
+
 \usetikzlibrary{shapes,arrows}
 % The minted package is also supported for source highlighting
 % See minted-intregration.tex for example
@@ -61,6 +71,9 @@
 
 % Main content
 \input{chapters/intro.tex}
+\cleardoublepage
+
+\input{chapters/decompilation.tex}
 \cleardoublepage
 
 \input{chapters/user.tex}

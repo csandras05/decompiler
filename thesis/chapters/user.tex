@@ -1,7 +1,11 @@
 \chapter{Felhasználói dokumentáció}
 \label{ch:user}
 
-A program \texttt{Ubuntu 20.04} operációs rendszer alatt fut. A futtasához szükség van \texttt{Python 3.10.4}-re, valamint több könyvtárra, ezeket a \texttt{requirements.txt} fájl tartalmazza, melyeket a \texttt{pip} csomagkezelő segítségével könnyen feltelepíthetünk az alábbi paranccsal: \texttt{pip install -r requirements.txt}
+A program \texttt{Ubuntu 20.04} operációs rendszer alatt fut.
+A futtatáshoz szükség van \texttt{Python 3.10.4}-re, valamint több könyvtárra,
+ezeket a \texttt{requirements.txt} fájl tartalmazza, melyeket a
+\texttt{pip} csomagkezelő segítségével könnyen feltelepíthetünk az alábbi
+paranccsal: \texttt{pip install -r requirements.txt}
 
 A programnak alapvetően két felhasználási módja van, egyrészt lehet saját
 adatokkal tanítani a szegmentálást és a maszkolt C kód előállítását végző
@@ -10,9 +14,11 @@ egy grafikus felület segítségével van lehetőség a lefordított C kódok
 visszafejtésére.
 
 \section{Tanítás}
+Az Assembly kód szegmentálását és a maszkolt C kód előállítását két külön
+neurális háló végzi, a felhasználónak ezek tanítására van lehetősge.
 \subsection{Adatok}
 A tanítási adatok egyszerű C fájlok, melyeket a \texttt{model/train/raw\_data}
-mappába kell elhelyezni. Ezekből a nyers adatokból még ki kell nyerni
+mappában kell elhelyezni. Ezekből a nyers adatokból még ki kell nyerni
 a tanításhoz szükséges információkat, ezt a \texttt{model/train/features.py}
 script futtatásával tudjuk megtenni. Ez az előfeldogozott adatokat egy
 \texttt{json} fájlba menti ki, ezt fogjuk a tanítások során majd használni
@@ -26,6 +32,13 @@ a program. Ezt követően a \texttt{Jax} könyvtár ír ki egy figyelmeztető
 üzenetet, ez a könyvtár belső működésére vonatkozik, nyugodtan figyelmen kívül
 hagyhatjuk.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{images/warnings.png}
+	\caption{A futtatás során kapott figyelmeztető üzenetek.}
+	\label{fig:warnings}
+\end{figure}
+
 Ezután megjelenik egy folyamatjelző sáv, ami a felhasználó számára
 jelzi, hogy az adott epoch-ban az adatok hányadrészét dolgozta fel eddig
 a modell. Az epoch végén kiírja, hogy mennyi volt a hibája és a pontossága
@@ -34,12 +47,22 @@ a modellnek a tanító adatokon, majd a ugyanezt a tesztadatokra.
 A program futása végén egy új ablakban megnyílik egy grafikon, ami külön
 a tanító és teszt példákra szemlélteti, hogy a tanítás során mekkora volt
 a modell hibája és pontossága. A felugró ablakot bezárva megjelenik egy üzenet,
-hogy a betanított modell milyen néven került elmentésre. A betanított
+hogy a betanított modell milyen néven mentődik el. A betanított
 modellek a \texttt{model/train/runs} mappában érhetőek el. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/translation_train.png}
+	\caption[A fordítás tanítása]{A fordítás tanítása. A felhasználó számára egy folyamatjelző sáv
+        mutatja, hogy az adott tanítási iterációban a tanítópéldák hány százalékát dolgozta fel
+        eddig a modell. Ezen kívül látszik minden tanítási iterációra a modell hibája és pontossága
+        a tanító-, valamint a tesztpéldákon.}
+	\label{fig:train}
+\end{figure}
 
 \subsubsection{Szegmentálás konfigurálása}
 
-A szegementálás tanítása során használt paramétereket
+A szegmentálás tanítása során használt paramétereket
 a \texttt{model/train/segmentation\_train.yaml} fájlban lehet konfigurálni.
 A felhasználó az alábbi beállításokat tudja módosítani:
 \begin{itemize}
@@ -59,15 +82,35 @@ A felhasználó az alábbi beállításokat tudja módosítani:
         egy tanítási lépés során egyszerre hány adattal dolgozzon a modell. Az
         alapértelmezett érték $4$.
     \item \texttt{max\_len}: A bemenet, vagyis, hogy hány sor Assembly-ből áll
-        a program maximális hossza. Az alapértelmezett érték $90$.
-    \item \texttt{embedding\_size}: A begyazás után hány dimenziós vektort
-        kapunk. Alapvetően a beágyazást egy előre betanított \texttt{Palmtree}
+        a program, maximális hossza. Az alapértelmezett érték $90$.
+    \item \texttt{embedding\_size}: A beágyazás után hány dimenziós vektort
+        kapunk. Alapvetően a beágyazást egy előre betanított \texttt{Palmtree}\cite{palmtree}
         modell végzi, ami $128$ dimenziós vektorokkal dolgozik, így az
         alapértelmezett érték $128$, amit csak a \texttt{Palmtree} módosítása
         esetén változtassunk.
     \item \texttt{test\_ratio}: Az összes adat hányadrésze legyen a teszthalmaz
         (a maradék adat adja a tanítóhalmazt). Az alapértelmezett érték $0,2$.
 \end{itemize}
+
+\begin{figure}[H]
+	\centering
+    \captionsetup{singlelinecheck=off}
+	\includegraphics[width=1\textwidth]{images/segmentation_train.pdf}
+	\caption[A hiba és a pontosság változása a szegmentálás tanítása során.]%
+    {A hiba és a pontosság változása a tanító- és tesztpéldakon a szegmentálás tanítása során.\\
+    A modell a következő paraméterekkel lett tanítva:
+    \begin{itemize}
+        \item \texttt{num\_epochs}: $20$
+        \item \texttt{optimizer}: \texttt{"adam"}
+        \item \texttt{learning\_rate}: $0.0003$
+        \item \texttt{hidden\_size}: $128$
+        \item \texttt{batch\_size}: $8$
+        \item \texttt{max\_len}: $90$
+        \item \texttt{embedding\_size}: $128$
+        \item \texttt{test\_ratio}: $0.2$
+    \end{itemize}}
+	\label{fig:plot1}
+\end{figure}
 
 \subsubsection{Fordítás konfigurálása}
 
@@ -84,7 +127,7 @@ A felhasználó az alábbi beállításokat tudja módosítani:
         Assembly-ből áll egy visszafordítandó blokk, maximális hossza. Az
         alapértelmezett érték $40$.
     \item \texttt{max\_output\_len}: A kimenet, vagyis, hogy hány token-ből
-        állhat a visszafordítás során kapott maszkolt C kód maximális hossza.
+        állhat a visszafordítás során kapott maszkolt C kód, maximális hossza.
         Az alapértelmezett érték $40$.
     \item \texttt{test\_ratio}: Ld. szegmentálás konfigurálása.
 \end{itemize}
@@ -95,10 +138,24 @@ A \texttt{main.py} programot futtatva egyrészt megjelennek a korábban írt
 figyelmeztető üzenetek a konzolon, másrészt egy új ablakban a program grafikus
 felülete. Itt a \texttt{Browse} gombra kattintva kiválaszthatjuk
 a visszafejteni kívánt fájlt, majd ezt a \texttt{Submit} gombra kattintva
-tudjuk betölteni. Ekkor a baloldai szövegdobozban megjelenik a kiválasztott futtaható
-állományból kinyert Assembly kód. Ezután a \texttt{Decompile} gombra kattintva
+tudjuk betölteni. Ekkor a baloldali szövegdobozban megjelenik a kiválasztott futtatható
+állományból kinyert Assembly kód.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{images/file_browse.png}
+	\caption{A visszafejtendő fájl betöltése a grafikus felületen.}
+	\label{fig:file_browse}
+\end{figure}
+
+Ezután a \texttt{Decompile} gombra kattintva a jobboldali szövegdobozban megjelenik
+a \texttt{Decompiling code, it may take a few seconds} felirat, majd
 megkezdődik a kód visszafordítása, ami az eredeti C kód bonyolultságától
-függően néhány másodperctől fél percig tart. Ezután megnézhetjük, hogy
+függően néhány másodperctől fél percig tart. A kódvisszafejtés végeztével
+a szövegdobozban a következő szöveg jelenik meg: \texttt{Decompilaton done,
+click on the buttons below to see the result.}
+
+Ezután megnézhetjük, hogy
 a bevezetésben leírt lépesek hogy zajlottak. a \texttt{Segmentation} gombra
 kattintva a jobboldali szövegdobozban megjelenik a feldarabolt Assembly,
 a blokkokat egy-egy üres sor választja el. A \texttt{Masked C} gombra kattintva
@@ -110,16 +167,56 @@ szerkezetében megegyezik\footnote{A betanított modellek nem $100\%$
 pontosságúak, így nem garantált, hogy mindig sikeres lesz a visszafordítás.} az
 eredeti C kóddal.
 
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{images/segmentation.png}
+	\caption{A szegmentálás megjelenítése a grafikus felületen.}
+	\label{fig:segmentation}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{images/masked_c.png}
+	\caption{A maszkolt C kód megjelenítése a grafikus felületen.}
+	\label{fig:masked_c}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{images/reconstructed_c.png}
+	\caption{A rekonstruált C kód megjelenítése a grafikus felületen.}
+	\label{fig:reconstructed_c}
+\end{figure}
+
 \subsection{Konzolos interfész}
-Ha a főprogramot a \texttt{--gui=False} argumentummal futtatjuk, akkor egy
+Ha a főprogramot a \texttt{\-\-gui=False} argumentummal futtatjuk, akkor egy
 konzolos interfész segítségével is kipróbálhatjuk a program működését. Először
 megjelennek a szokásos figyelmeztető üzenetek, majd a program bekéri
 a visszafejtendő fájl nevét. Ide ha az \texttt{exit} parancsot írjuk, akkor
+a program a \texttt{Closing program...} szöveget írja ki a képernyőre és
 leáll a program futása. Ha nem létező fájlnevet adunk meg vagy nem megfelelő
 formátumű a fájl, akkor a program egy
-\texttt{TODO} hibaüzenetet ír ki. Ha létezik a fájl és megfelelő formátumú,
+\texttt{File \textit{fájlnév} not found} hibaüzenetet ír ki, majd leáll a program.
+Ha létezik a fájl és megfelelő formátumú,
 akkor a program rögtön elkezdi a visszafordítást, ez általában egy pár
 másodperces folyamat, bonyolultabb programok esetén kicsivel több.
+
+\begin{figure}[H]
+	\centering
+	\subcaptionbox{A modell bementét képező Assembly kód.}{
+		\includegraphics[width=0.25\linewidth]{images/original_cli.png}}
+	\hspace{5pt}
+	\subcaptionbox{A szegmentált Assembly kód.}{
+		\includegraphics[width=0.25\linewidth]{images/segmentation_cli.png}}
+	\hspace{5pt}
+	\subcaptionbox{A maszkolt C kód.}{
+		\includegraphics[width=0.4\linewidth]{images/masked_c_cli.png}}
+	\hspace{5pt}
+	\subcaptionbox{A rekonstruált C kód.}{
+		\includegraphics[width=0.6\linewidth]{images/reconstructed_c_cli.png}}
+	\caption{A kódvisszafejtés lépései a konzolos interfészen.}
+	\label{fig:cli}
+\end{figure}
 
 \subsection{A modell konfigurálása}
 A modell különböző paramétereit a \texttt{model/model\_config.yaml} fájlban

@@ -1,5 +1,4 @@
 import functools
-import json
 from typing import Any, Dict, List
 
 import jax
@@ -105,16 +104,16 @@ class Translation:
         init_params = model.init(jax.random.PRNGKey(0), jnp.ones((1, self.max_input_len, embedding_size)))['params']
         self.params = serialization.from_bytes(init_params, params_bin)
     
-    def _id_seq_to_c_line(self, id_seq) -> str:
+    def _id_seq_to_c_line(self, id_seq: List[int]) -> str:
         until = jnp.where(id_seq == self.token_to_id[';'])[0][0] + 1
         tokens = map(lambda x: self.id_to_token[int(x)], id_seq[1:until])
         return ' '.join(tokens)
     
-    def _pad_input(self, input_data, max_len):
+    def _pad_input(self, input_data: List[jnp.ndarray], max_len: int) -> jnp.ndarray:
         return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)])
                           if x.shape[0] < max_len else x[:max_len] for x in input_data])
     
-    def translate(self, embeddings) -> List[str]:
+    def translate(self, embeddings: List[jnp.ndarray]) -> List[str]:
         padded = self._pad_input(embeddings, self.max_input_len)
         logits = self.model.apply({'params': self.params}, padded)
         preds = jnp.argmax(logits, axis=-1)

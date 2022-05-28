@@ -1,8 +1,10 @@
 absl-py==1.0.0
 attrs==21.4.0
 bert-pytorch==0.0.1a4
-chex==0.1.2
+chex==0.1.3
+coverage==6.4
 cycler==0.11.0
+-e git+https://github.com/csandras05/decompiler.git@4d7dbf8e017b2d57def24e3d95a5d4bfe52e486b#egg=decompiler&subdirectory=src
 dm-tree==0.1.7
 flatbuffers==2.0
 flax==0.4.1
@@ -10,6 +12,7 @@ fonttools==4.32.0
 iniconfig==1.1.1
 jax==0.3.7
 jaxlib==0.3.7
+joblib==1.1.0
 kiwisolver==1.4.2
 matplotlib==3.5.1
 msgpack==1.0.3
@@ -24,12 +27,20 @@ pluggy==1.0.0
 py==1.11.0
 pyparsing==3.0.8
 PySimpleGUI==4.59.0
-pytest==7.1.1
+pytest==7.1.2
+pytest-cov==3.0.0
 python-dateutil==2.8.2
+PyYAML==6.0
+scikit-learn==1.0.2
 scipy==1.8.0
 six==1.16.0
+sklearn==0.0
+threadpoolctl==3.1.0
 tomli==2.0.1
 toolz==0.11.2
 torch==1.11.0
 tqdm==4.64.0
+types-PyYAML==6.0.7
+types-requests==2.27.27
+types-urllib3==1.26.14
 typing_extensions==4.1.1

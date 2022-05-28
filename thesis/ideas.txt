@@ -1,0 +1,11 @@
+
+
+fejlesztői dokumentáció
+    felhasználói eset diagram
+    csomagdiagram -> alcímek
+        egyes csomagokat részletesen leírni
+            azon belül milyen fájlok
+                azon belül a fontosabb függvények
+    elmélet
+    
+

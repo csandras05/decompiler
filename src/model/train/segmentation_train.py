@@ -1,29 +1,39 @@
 import os
+from typing import Callable, Dict, List
 
 import jax
 import numpy as np
-import optax
 from flax.training import train_state
 from jax import numpy as jnp
-from matplotlib import pyplot as plt
 from model import utils
 from model.flax_models.segmentation import SegmentationModel
 from model.train import training
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split  # type: ignore
 
 CUR_DIR = os.path.dirname(__file__)
 
-def mask_sequences(sequence_batch, lengths):
+
+def mask_sequences(sequence_batch: jnp.ndarray, lengths: jnp.ndarray) -> jnp.ndarray:
   return sequence_batch * (
       lengths[:, np.newaxis] > np.arange(sequence_batch.shape[1])[np.newaxis])
 
-def binary_cross_entropy_loss(*, logits, labels, lengths):
+
+def binary_cross_entropy_loss(*,
+                              logits: jnp.ndarray,
+                              labels: jnp.ndarray,
+                              lengths: jnp.ndarray) -> float:
+    
   probs = logits * labels + (1-logits) * (1-labels)
   x = jnp.log(probs)
   x = mask_sequences(x, lengths)
   return -jnp.mean(jnp.sum(x, axis=-1))
 
-def compute_metrics(*, logits, labels, lengths):
+
+def compute_metrics(*,
+                    logits: jnp.ndarray,
+                    labels: jnp.ndarray,
+                    lengths: jnp.ndarray) -> Dict[str, float]:
+    
     loss = binary_cross_entropy_loss(logits=logits, labels=labels, lengths=lengths)
     token_accuracy = (jnp.round(logits) == labels)
     sequence_accuracy = (jnp.sum(mask_sequences(token_accuracy, lengths), axis=-1) == lengths)
@@ -34,18 +44,25 @@ def compute_metrics(*, logits, labels, lengths):
     }
     return metrics
 
-def create_train_state(rng, optimizer, learning_rate, hidden_size, max_len, embedding_size):
+
+def create_train_state(rng: jax.random.KeyArray,
+                       optimizer: Callable,
+                       learning_rate: float,
+                       hidden_size: int,
+                       max_len: int,
+                       embedding_size: int) -> train_state.TrainState:
+    
     model = SegmentationModel(hidden_size)
     params = model.init(rng, jnp.ones((1, max_len, embedding_size)))['params']
     tx = optimizer(learning_rate)
     return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 
 
-def pad_input(input_data, max_len):
+def pad_input(input_data: List[jnp.ndarray], max_len: int) -> jnp.ndarray:
     return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0]), (0, 0)])
                       if max_len > x.shape[0] else x[:max_len] for x in input_data])
 
-def pad_label(label_data, max_len):
+def pad_label(label_data: List[jnp.ndarray], max_len: int) -> jnp.ndarray:
     return jnp.array([jnp.pad(x, [(0, max_len - x.shape[0])])
                       if max_len > x.shape[0] else x[:max_len] for x in label_data])
 

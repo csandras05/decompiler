@@ -1,0 +1,37 @@
+endbr64
+push rbp
+mov rbp rsp
+mov [ rbp - 0x14 ] 0x2
+mov [ rbp - 0x10 ] 0x5
+mov edx [ rbp - 0x10 ]
+mov eax [ rbp - 0x14 ]
+imul eax edx
+add eax 0x2a
+mov [ rbp - 0xc ] eax
+mov eax [ rbp - 0xc ]
+and eax 0x5
+mov [ rbp - 0x8 ] eax
+mov eax [ rbp - 0x10 ]
+movsxd rdx eax
+imul rdx rdx 0x78787879
+shr rdx 0x20
+sar edx 0x3
+sar eax 0x1f
+sub edx eax
+mov eax edx
+mov [ rbp - 0x4 ] eax
+mov eax [ rbp - 0x14 ]
+or eax 0xfffffffd
+mov [ rbp - 0x14 ] eax
+mov edx [ rbp - 0x4 ]
+mov eax [ rbp - 0x4 ]
+imul eax edx
+mov edx [ rbp - 0xc ]
+mov ecx 0x3
+sub ecx edx
+mov edx ecx
+add eax edx
+mov [ rbp - 0x4 ] eax
+mov eax 0x0
+pop rbp
+ret

@@ -24,8 +24,10 @@
         child { node [optional] {runs}}
         child { node [file] {features.py}}
         child { node [file] {segmentation\_train.py}}
+        child { node [file] {training.py}}
         child { node [file] {translation\_train.py}}
       }
+      child [missing] {}
       child [missing] {}
       child [missing] {}
       child [missing] {}
@@ -48,7 +50,8 @@
     child [missing] {}
     child [missing] {}
     child [missing] {}
-    child { node {test}}
+    child [missing] {}
+    child { node {tests}}
     child { node {ui}
       child {node [file] {cli.py}}
       child {node [file] {gui.py}}
