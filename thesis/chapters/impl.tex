@@ -425,7 +425,7 @@ fájlokban vannak a \texttt{tests} könyvtárban, a \texttt{test\_<modulnév>.py
 A neurális hálók tanításának nemdeterminisztikus volta miatt a tesztesetek elsősorban az egyes modulok
 különböző segédfüggvényeit fedik le.
 \begin{itemize}
-    \item \texttt{test\_features.py}: A nyers adatok feldolgozás során használt függvények tesztelése.
+    \item \texttt{test\_features.py}: A nyers adatok feldolgozása során használt függvények tesztelése.
     \item \texttt{test\_utils.py}: A futtatható állományból a szükséges adatokat (Assembly kód, címkék)
         előállító függvények, valamint a \texttt{JSON} fájlok elmentését és betöltését végző metódusok
         tesztelése.
@@ -436,7 +436,7 @@ különböző segédfüggvényeit fedik le.
         hogy egy tanítási lépés során változnak-e a modell belső állapotát leíró paraméterek.
     \item \texttt{test\_train.py}: A folyamatjelző sáv működésének tesztelése.
     \item \texttt{test\_reconstruct.py}: A program harmadik lépésének (az Assembly blokkokból és a 
-        maszkolt C kódból az eredeti C kód rekonsruálása) tesztelése.
+        maszkolt C kódból az eredeti C kód rekonstruálása) tesztelése.
 \end{itemize}
 A teszteket a \texttt{pytest} parancs kiadásával tudjuk lefuttatni
 a gyökér könyvtárból. A tesztelő beállításait a \texttt{pytest.ini} konfigurációs fájl tartalmazza.
