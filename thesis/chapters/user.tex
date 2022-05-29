@@ -21,7 +21,7 @@ A tanítási adatok egyszerű C fájlok, melyeket a \texttt{model/train/raw\_dat
 mappában kell elhelyezni. Ezekből a nyers adatokból még ki kell nyerni
 a tanításhoz szükséges információkat, ezt a \texttt{model/train/features.py}
 script futtatásával tudjuk megtenni. Ez az előfeldogozott adatokat egy
-\texttt{json} fájlba menti ki, ezt fogjuk a tanítások során majd használni
+\texttt{json} fájlba menti ki, ezt fogjuk a tanítások során majd használni.
 
 \subsection{Szegmentálás és fordítás tanítása}
 A tanítási folyamatot a \texttt{model/train/segmentation\_train.py}, illetve
@@ -40,9 +40,9 @@ hagyhatjuk.
 \end{figure}
 
 Ezután megjelenik egy folyamatjelző sáv, ami a felhasználó számára
-jelzi, hogy az adott epoch-ban az adatok hányadrészét dolgozta fel eddig
-a modell. Az epoch végén kiírja, hogy mennyi volt a hibája és a pontossága
-a modellnek a tanító adatokon, majd a ugyanezt a tesztadatokra.
+jelzi, hogy az adott tanítási iterációban az adatok hányadrészét dolgozta fel eddig
+a modell. A tanítási iteráció végén kiírja, hogy mennyi volt a hibája és a pontossága
+a modellnek a tanító adatokon, majd ugyanezt a tesztadatokra.
 
 A program futása végén egy új ablakban megnyílik egy grafikon, ami külön
 a tanító és teszt példákra szemlélteti, hogy a tanítás során mekkora volt
@@ -67,7 +67,7 @@ a \texttt{model/train/segmentation\_train.yaml} fájlban lehet konfigurálni.
 A felhasználó az alábbi beállításokat tudja módosítani:
 \begin{itemize}
     \item \texttt{num\_epochs}: A tanulási iterációk száma, azt adja meg, hogy
-        a modell összesen hányszor "látja" a teljes tanítóhalmazt. az
+        a modell összesen hányszor "látja" a teljes tanítóhalmazt. Az
         alapértelmezett érték $10$.
     \item \texttt{optimizer}: A tanítási folyamat során milyen optimalizálót
         használjon a modell, az \texttt{optax}\cite{optax2020github} könyvtár
@@ -89,7 +89,7 @@ A felhasználó az alábbi beállításokat tudja módosítani:
         alapértelmezett érték $128$, amit csak a \texttt{Palmtree} módosítása
         esetén változtassunk.
     \item \texttt{test\_ratio}: Az összes adat hányadrésze legyen a teszthalmaz
-        (a maradék adat adja a tanítóhalmazt). Az alapértelmezett érték $0,2$.
+        (a maradék adat adja a tanítóhalmazt). Az alapértelmezett érték $0.2$.
 \end{itemize}
 
 \begin{figure}[H]
@@ -97,18 +97,7 @@ A felhasználó az alábbi beállításokat tudja módosítani:
     \captionsetup{singlelinecheck=off}
 	\includegraphics[width=1\textwidth]{images/segmentation_train.pdf}
 	\caption[A hiba és a pontosság változása a szegmentálás tanítása során.]%
-    {A hiba és a pontosság változása a tanító- és tesztpéldakon a szegmentálás tanítása során.\\
-    A modell a következő paraméterekkel lett tanítva:
-    \begin{itemize}
-        \item \texttt{num\_epochs}: $20$
-        \item \texttt{optimizer}: \texttt{"adam"}
-        \item \texttt{learning\_rate}: $0.0003$
-        \item \texttt{hidden\_size}: $128$
-        \item \texttt{batch\_size}: $8$
-        \item \texttt{max\_len}: $90$
-        \item \texttt{embedding\_size}: $128$
-        \item \texttt{test\_ratio}: $0.2$
-    \end{itemize}}
+    {A hiba és a pontosság változása a tanító- és tesztpéldakon a szegmentálás tanítása során.}
 	\label{fig:plot1}
 \end{figure}
 
@@ -138,7 +127,7 @@ A \texttt{main.py} programot futtatva egyrészt megjelennek a korábban írt
 figyelmeztető üzenetek a konzolon, másrészt egy új ablakban a program grafikus
 felülete. Itt a \texttt{Browse} gombra kattintva kiválaszthatjuk
 a visszafejteni kívánt fájlt, majd ezt a \texttt{Submit} gombra kattintva
-tudjuk betölteni. Ekkor a baloldali szövegdobozban megjelenik a kiválasztott futtatható
+tudjuk betölteni. Ekkor a bal oldali szövegdobozban megjelenik a kiválasztott futtatható
 állományból kinyert Assembly kód.
 
 \begin{figure}[H]
@@ -148,7 +137,7 @@ tudjuk betölteni. Ekkor a baloldali szövegdobozban megjelenik a kiválasztott 
 	\label{fig:file_browse}
 \end{figure}
 
-Ezután a \texttt{Decompile} gombra kattintva a jobboldali szövegdobozban megjelenik
+Ezután a \texttt{Decompile} gombra kattintva a jobb oldali szövegdobozban megjelenik
 a \texttt{Decompiling code, it may take a few seconds} felirat, majd
 megkezdődik a kód visszafordítása, ami az eredeti C kód bonyolultságától
 függően néhány másodperctől fél percig tart. A kódvisszafejtés végeztével
@@ -157,7 +146,7 @@ click on the buttons below to see the result.}
 
 Ezután megnézhetjük, hogy
 a bevezetésben leírt lépesek hogy zajlottak. a \texttt{Segmentation} gombra
-kattintva a jobboldali szövegdobozban megjelenik a feldarabolt Assembly,
+kattintva a jobb oldali szövegdobozban megjelenik a feldarabolt Assembly,
 a blokkokat egy-egy üres sor választja el. A \texttt{Masked C} gombra kattintva
 megjelenik az eredeti C kód "sablonja", itt még az összes változó helyén
 a \texttt{VAR} token, a számliterálok helyén pedig a \texttt{NUM} token
@@ -193,9 +182,9 @@ Ha a főprogramot a \texttt{\-\-gui=False} argumentummal futtatjuk, akkor egy
 konzolos interfész segítségével is kipróbálhatjuk a program működését. Először
 megjelennek a szokásos figyelmeztető üzenetek, majd a program bekéri
 a visszafejtendő fájl nevét. Ide ha az \texttt{exit} parancsot írjuk, akkor
-a program a \texttt{Closing program...} szöveget írja ki a képernyőre és
+a program a \texttt{Closing program...} szöveget írja ki a képernyőre, és
 leáll a program futása. Ha nem létező fájlnevet adunk meg vagy nem megfelelő
-formátumű a fájl, akkor a program egy
+formátumú a fájl, akkor a program egy
 \texttt{File \textit{fájlnév} not found} hibaüzenetet ír ki, majd leáll a program.
 Ha létezik a fájl és megfelelő formátumú,
 akkor a program rögtön elkezdi a visszafordítást, ez általában egy pár
@@ -240,8 +229,8 @@ lehet konfigurálni. A felhasználó az alábbi beállításokat tudja módosít
         útvonalát kell megadni, ami egy szótárat tartalmaz, melyben szerepel,
         hogy a lehetséges kimeneti tokeneket milyen számra képezzük. Az
         alapértelmezett érték \texttt{"flax\_models/vocab.json"}.
-    \item \texttt{hidden\_size}: Ld. szegmentálás konfigurálása.
-    \item \texttt{max\_input\_len}: Ld. fordítás konfigurálása.
-    \item \texttt{max\_output\_len}: Ld. fordítás konfigurálása.
+    \item \texttt{translation/hidden\_size}: Ld. szegmentálás konfigurálása.
+    \item \texttt{translation/max\_input\_len}: Ld. fordítás konfigurálása.
+    \item \texttt{translation/max\_output\_len}: Ld. fordítás konfigurálása.
 \end{itemize}
 

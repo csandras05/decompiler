@@ -21,26 +21,26 @@ C kód és az Assembly kód segítségével előállítjuk az eredeti C kódot.
 A visszafejtés első lépésében történik az Assembly kód szegmentálása, ahol
 a cél, hogy úgy daraboljuk fel a kódot egymás utáni blokkokra, hogy egy-egy ilyen blokk egy
 sor C kódnak feleljen meg. Ezt a feladatot egy \texttt{LSTM}\cite{lstm} cellákból álló
-rekurrens neurális háló felhasználásával tudjuk megoldani. A modell bemenete az Assembly sorok,
+rekurrens neurális háló felhasználásával tudjuk megoldani. A modell bemenetét az Assembly sorok képezik,
 a kimenete pedig minden sorra $1$, ha ott kezdődik egy blokk, $0$ egyébként. Ez
 egy bináris klasszifikációs probléma, melyet a modell könnyedén megtanulhat.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{images/segmentation_fig.pdf}
-	\caption{A szegmentálás folyamata}
+	\caption{A szegmentálás folyamata.}
 	\label{fig:segmentation_fig}
 \end{figure}
 
 \section{Maszkolt C kód előállítása}
 A második lépésben minden Assembly blokkot egy sor C kódnak próbálunk
 megfeleltetni. Fontos, hogy ebben a lépésben nem várjuk el a változók és
-a számliterálok pontos visszaállítását. Ezért az eredeti C kódban minden
+a számliterálok pontos visszaállítását, ezért az eredeti C kódban minden
 változó előfordulást \texttt{VAR}-ra, minden számliterál előfordulást
 \texttt{NUM}-ra cserélünk. A konkrét értékek visszahelyettesítése majd
 a harmadik lépésben fog megtörténni.
 
-Ezt a problémát egy enkóder-dekóder modell segítségével oldhatjuk meg. Az enkóder
+A fenti problémát egy enkóder-dekóder modell segítségével oldhatjuk meg. Az enkóder
 első lépésben a bemeneti Assembly blokk sorait kódolja egy vektorba, majd
 a dekóder ezen vektorból állítja elő a kimeneti tokenek listáját. A lehetséges
 kimeneti tokeneket és a hozzájuk tartozó alapértelmezett indexeket az alábbi ábra
@@ -56,7 +56,7 @@ tartalmazza.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{images/translation_fig.pdf}
-	\caption{A maszkolt C kód előállításának folyamata}
+	\caption{A maszkolt C kód előállításának folyamata.}
 	\label{fig:translation_fig}
 \end{figure}
 
@@ -80,7 +80,8 @@ segítségével próbáljuk rekonstruálni, az alábbi lépésekben:
 Így sorról sorra behelyettesítjük a változókat és számliterálokat, míg végül
 visszanyerjük az eredeti\footnote{A változónevek $x0,x1,\dots$ lesznek}
 C kódot.
-\subsection{Probléma a szorzással, osztással és modulozással}
+
+\section{Probléma a szorzással, osztással és modulozással}
 Az \texttt{x0 = x1 + 5 ;} kifejezésnek megfelelő Assembly blokkban 
 megjelenik az $5$-ös számliterál, ugyanakkor ez nem minden műveletnél van így.
 Hatékonysági okokból a számmal való osztás során a fordító nem osztást fog
@@ -94,7 +95,7 @@ Ezen probléma megoldására előre legenerálható, hogy egy adott számmal val
 osztás során milyen "varázsszámok" jelennek meg az Assembly-ben. Ezután a fenti
 algoritmus még kiegészült annyiban, hogy nem csak az Assembly-ben
 megjelenő számliterálokat próbáljuk behelyettesíteni a \texttt{NUM} tokenek
-helyére, hanem ha pl. a $(30841, 32, 3, 31)$ számok mind szerepelnek, akkor ehhez a listához
+helyére, hanem, ha pl. a $(30841, 32, 3, 31)$ számok mind szerepelnek, akkor ehhez a listához
 a $17$-et is hozzávesszük.
 
 A szorzás és modulozás során hasonló probléma lép fel, például a $(2, 3, 6)$
@@ -111,7 +112,7 @@ a kapott programot.
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{images/steps.pdf}
-	\caption{A kódvisszafejtés lépései}
+	\caption{A kódvisszafejtés lépései.}
 	\label{fig:steps}
 \end{figure}
 
@@ -122,6 +123,6 @@ a trükk már régóta ismert a neurális gépi fordítási problémák megoldá
 a legismertebb ilyen megoldás a \texttt{Word2Vec}\cite{word2vec}. Ahhoz hasonlóan az
 Assembly beágyazásnál is cél, hogy a hasonló soroknak közeli vektorokat
 feleltessünk meg, ezzel megkönnyítve a későbbiek során a modell tanulási
-folyamatát. Ezen feladat megoldására jelenleg a \texttt{Palmtree}\cite{palmtree} az egyik legjobb eszköz,
+folyamatát. Ezen feladat megoldására jelenleg a \texttt{Palmtree}\cite{palmtree} az egyik legjobb eszköz.
 Ez minden sor Assembly-t egy \texttt{N} dimenziós vektorba képez le, működési elve
 a \texttt{BERT}\cite{bert}-höz hasonló.

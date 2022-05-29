@@ -4,7 +4,7 @@
 A főprogram (betanított modell használata) alapvetően nézet-modell
 architektúrát követ. A programot a \texttt{main.py} fájl futtatásával tudjuk elindítani.
 Ebben a fájlban az argumentumok parszolása után a \texttt{-gui} kapcsoló értékétől függően
-a grafikus vagy a konzolos felületért felelős osztály példányosítjuk, paraméterül átadva neki
+a grafikus vagy a konzolos felületért felelős osztályt példányosítjuk, paraméterül átadva neki
 a mögöttes működésért felelős \texttt{Decompiler} osztály egy példányát.
 
 \section{Felhasználói felület}
@@ -18,8 +18,8 @@ A grafikus felület ezzel szemben komplexebb, ennek implementálása a
 A \texttt{GUI} osztály konstruktorában történik meg a felhasználói felület
 elemeinek létrehozása, melyek a következők:
 \begin{itemize}
-    \item 2 Szövegdoboz (\texttt{Multiline}): a baloldali jeleníti meg az
-    eredeti Assembly kódot, a jobboldali a visszafejtés 3 lépését:
+    \item 2 szövegdoboz (\texttt{Multiline}): a bal oldali jeleníti meg az
+    eredeti Assembly kódot, a jobb oldali a visszafejtés 3 lépését:
     a szegmentált Assembly-t, a maszkolt C és a rekonstruált C-t.
     \item Szövegbeviteli mező (\texttt{TextInput}): Itt lehet megadni
     a betölteni kívánt fájl nevét. Ez alapvetően inaktív, a szövegbevitelt egy
@@ -32,13 +32,13 @@ elemeinek létrehozása, melyek a következők:
     \item Gomb (\texttt{Button}): A fájlkeresőt leszámítva összesen 5 gomb található a felhasználói felületen:
     \begin{itemize}
         \item \texttt{Submit}: Erre kattintva a \texttt{TextInput}-ban lévő elérési útvonalat átadjuk a modell
-            \texttt{open\_binary\_file} metódusának, majd a baloldali szövegdobozban megjelenítjük a betöltött
+            \texttt{open\_binary\_file} metódusának, majd a bal oldali szövegdobozban megjelenítjük a betöltött
             fájlból kinyert Assembly-t.
         \item \texttt{Decompile}: Erre kattintva csak meghívjuk a modell \texttt{decompile} metódusát, illetve
-            jobboldali szövegdobozban jelezzük a felhasználó számára, hogy elkezdődött, illetve befejeződött
+            jobb oldali szövegdobozban jelezzük a felhasználó számára, hogy elkezdődött, illetve befejeződött
             a kódvisszafejtés folyamata.
         \item \texttt{Segmentation}, \texttt{Masked C}, \texttt{Reconstructed C}: Ezen gombokra kattintva a modell
-            megfelelő getter-ét hívva megjelenítjük a jobboldali szövegdobozban a kódvisszafejtés folyamatának
+            megfelelő getter-ét hívva megjelenítjük a jobb oldali szövegdobozban a kódvisszafejtés folyamatának
             megfelelő lépését.
     \end{itemize}
 \end{itemize}
@@ -46,7 +46,7 @@ elemeinek létrehozása, melyek a következők:
 \begin{figure}[H]
 	\centering
 	\input{images/file-system.tex}
-	\caption{A kódbázis felépítése}
+	\caption{A kódbázis felépítése.}
 	\label{fig:file-system}
 \end{figure}
 
@@ -165,7 +165,7 @@ Sajnos a \texttt{Jax} függvényparaméterekkel nem tud dolgozni, ezért hogy m�
 meg kell adnunk, hogy az \texttt{error\_fn} és \texttt{metric\_fn} paraméterek statikusak. Ekkor
 mindig, amikor egy másik hibafüggvényt vagy metrikafüggvényt adunk át, újra kell fordítani a
 \texttt{Jax}-nek a függvényt, de mivel egy tanítási folyamat során végig ugyanazokat használjuk,
-ezért ez nem lesz probléma.
+ezért ez nem okoz problémát.
 
 \subsubsection{eval\_model \& eval\_step}
 Az \texttt{eval\_model} és \texttt{eval\_step} függvények végzik a modell kiértékelését.
@@ -176,7 +176,7 @@ a \texttt{eval\_step} függvény is futási időben fordított, ezzel gyorsítva
 \subsubsection{visualize \& plot}
 A \texttt{visualize} és \texttt{plot} függvények a \texttt{matplotlib}\cite{Hunter:2007} könyvtár
 segítségével grafikonon jelenítik meg a felhasználó számára, hogy hogyan változott a tanítási
-folyamat során a modell hibája és pontossága a tanító- illetve teszthalmazon.
+folyamat során a modell hibája és pontossága a tanító,- illetve teszthalmazon.
 A vízszintes tengelyen a tanítási iteráció, a függőleges tengelyen pedig a hiba, illetve a pontosság
 szerepel. Ezt szemlélteti a \ref{fig:plot1}.~ábra.
 
@@ -189,7 +189,7 @@ be lehet tölteni és újra felhasználni.
 A szegmentálást végző modell tanítását a \texttt{model/train/segmentation\_train.py}
 script futtatásával tudjuk megtenni. A program először beolvasssa a nyers adatok feldolgozása
 során előállított \texttt{model/train/data.json} fájlt, valamint a tanítás során használt paramétereket
-tartalmazó \texttt{model/train/segmentation\_train.yaml} fájlt. Ezután az \texttt{Scikit-learn}\cite{scikit-learn}
+tartalmazó \texttt{model/train/segmentation\_train.yaml} fájlt. Ezután a \texttt{Scikit-learn}\cite{scikit-learn}
 könyvtár \texttt{train\_test\_split} metódusával véletlenszerűen felbontjuk az adathalmazt
 tanító- és teszthalmazra. Alapértelmezetten az adatok $80\%$-a teszi ki a tanítóhalmazt, a maradék
 $20\%$ pedig a teszthalmazt, de ez a konfigurációs fájl \texttt{test\_ratio} mezőjében tetszőlegesen módosítható.
@@ -211,7 +211,7 @@ A modell leírását a \texttt{model/flax\_models/segmentation.py} modul tartalm
 
 \subsubsection{hiba és pontosság}
 A modell hibáját a \texttt{binary\_cross\_entropy\_loss} függvény határozza meg. Argumentumként megkapja
-a modell által prediktált értékeket ($0.0$ és $1.0$) közötti érték (\texttt{logits}), a tényleges kimeneteket
+a modell által prediktált értékeket ($0.0$ és $1.0$ közötti érték, \texttt{logits}), a tényleges kimeneteket
 ($0$ vagy $1$, \texttt{labels}) és a kimenetek eredeti hosszait (\texttt{lengths}). Ez utóbbi ahhoz kell,
 hogy az eredeti hossz utáni tévedéseket ne számoljuk hibának. Ezt úgy oldjuk meg, hogy a
 \texttt{mask\_sequence} függvény segítségével a prediktált és az elvárt értékeket is
@@ -223,12 +223,12 @@ Ez az érték $0$, ha a modell minden kimenetet pontosan eltalált, és $+\infty
 prediktálta valós kimenetnek ($0$ helyett $1$-et, vagy $1$ helyett $0$-t).
 
 A \texttt{compute\_metrics} függvény egyrészt a \texttt{binary\_cross\_entropy\_loss} metódus hívásával
-kiszámolja a modell hibáját. Másrészt számol egy pontosságot, vagyis, hogy az esetek hányad részében
-prediktálta helyesen a kimeneti tokent. Itt ha a modell által prediktált érték $0.5$ alatti, akkor azt
+kiszámolja a modell hibáját, másrészt számol egy pontosságot, vagyis, hogy az esetek hányad részében
+prediktálta helyesen a kimeneti tokent. Itt, ha a modell által prediktált érték $0.5$ alatti, akkor azt
 $0$-nak tekintjük, különben $1$-nek.
 
 \subsection{Fordító modell tanítása}
-A maszkolt C kód végző modell tanítását a \texttt{model/train/translation\_train.py}
+A maszkolt C kód előállítását végző modell tanítását a \texttt{model/train/translation\_train.py}
 script futtatásával tudjuk megtenni. A tanítási folyamat alapvetően megegyezik a szegmentáló modell
 tanításánál látottakkal, a hibát és a pontosságot számító modellek működésében van eltérés.
 A fordító modell hibáját a \texttt{cross\_entropy\_loss} függvény határozza meg, ez egy kereszt-entrópiát
@@ -239,7 +239,7 @@ a kimenet eredeti hosszán túl lévő hibákat.
 A \texttt{compute\_metrics} metódus egyrészt kiszámolja a modell hibáját a \texttt{cross\_entropy\_loss}
 metódus segítségével, másrészt megadja, hogy az esetek hány százalékában találta el a modell teljes
 egészében az elvárt kimenetet. Ennek a metrikának a hátránya, hogy csak a tökéletes működést fogadja el,
-ugyanúgy kezeli, ha csak egyetlen tokent tévedett a modell és azt, ha teljesen elrontotta a kimenetet.
+ugyanúgy kezeli, ha csak egyetlen tokent tévesztett el a modell és azt, ha teljesen elrontotta a kimenetet.
 
 \section{A kódvisszafejtés folyamata}
     A bevezetésben leírtaknak megfelelően a kódvisszafejtés három lépésben történik. Ezek közül
@@ -252,7 +252,7 @@ ugyanúgy kezeli, ha csak egyetlen tokent tévedett a modell és azt, ha teljese
     moduljában található.
 
     A program mögöttes logikájáért a \texttt{model/model.py} modulban található \texttt{Decompiler}
-    osztály felelős. A felhasználói felület ezen osztály metódusait hívogatja és jeleníti meg az eredményt.
+    osztály felelős. A felhasználói felület ezen osztály metódusait hívja és jeleníti meg az eredményt.
     A következő metódusokat tartalmazza az osztály:
     \begin{itemize}
         \item konstruktor (\texttt{\_\_init\_\_}): A konstruktor paraméterül egy szótárat kap, ami a
@@ -317,7 +317,7 @@ választjuk. Mivel a háló által adott kimeneti tokenek száma fix hosszúság
 lévő tokeneket eldobjuk, majd a maradékot space-ekkel összefűzve visszaadjuk.
 
 \subsection{A változók és a számliterálok rekonstruálása}
-Az fordítható C kód előállításáért a \texttt{model/reconstruct} csomag felelős. Ebben a csomagban található
+A fordítható C kód előállításáért a \texttt{model/reconstruct} csomag felelős. Ebben a csomagban található
 a tényleges számításokat végző \texttt{reconstruct.py} modul, valamint három fájl (\texttt{div\_magic.json},
 \texttt{mod\_magic.json}, \texttt{mul\_magic.json}), amik a bevezetőben leírt osztás, modulozás és szorzás
 során felmerülő komplikációk megoldásában segítenek. $-100$-tól $100$-ig minden számra tartalmazzák, hogy
@@ -346,14 +346,14 @@ maszkolni, mert azokat is számnak vennénk különben. Ezután minden hexadecim
 kikeresünk, majd ezeket tízes számrendszerbe váltjuk, ez utóbbiért az \texttt{s16} függvény felelős.
 
 Az \texttt{extra\_nums} függvény a kinyert számokhoz előállítja a lehetséges extra számokat a \texttt{*\_magic.json}
-fájlok alapján. Például ha osztunk és az Assembly-ből kinyert számok a $(30841, 32, 3, 31)$, akkor a $17$-et fogja
+fájlok alapján. Például, ha osztunk és az Assembly-ből kinyert számok a $(30841, 32, 3, 31)$, akkor a $17$-et fogja
 visszaadni a függvény, mint "extra szám".
 
-A \texttt{compile\_and\_get\_blocks} függvény az iteratívan előállított programrészletet fordítja le és állítja
+A \texttt{compile\_and\_get\_blocks} függvény az iteratívan előállított programrészletet fordítja le, majd állítja
 elő belőle az Assembly blokkokat. Ezt aztán a \texttt{compare} metódus összehasonlítja az eredeti Assembly blokkokkal.
 Mivel teljes egyezés nem várható el (nem determinisztikus, hogy pontosan melyik regiszterekre fogunk hivatkozni),
 ezért csak azt vizsgáljuk, hogy egyrészt ugyanolyan hosszú-e a két kód, másrészt hogy a változók és a számok
-ugyanabban a sorrendben vannak.
+ugyanabban a sorrendben vannak-e.
 
 
 \section{Segédprogramok}
@@ -421,19 +421,29 @@ a \texttt{Mypy}\cite{mypy} könyvtár segítségével.
 
 \subsection{Egységtesztek}
 Az egységtesztek a moduloknak megfelelően külön
-fájlokban kerültek elhelyezésre a \texttt{tests}, a \texttt{test\_<modulnév>.py} konvenciót használva.
+fájlokban vannak a \texttt{tests} könyvtárban, a \texttt{test\_<modulnév>.py} konvenciót használva.
 A neurális hálók tanításának nemdeterminisztikus volta miatt a tesztesetek elsősorban az egyes modulok
-különböző segédfüggvényeit fedik le. A neurális hálók és a tanítási folyamat ellenőrzésére alapvetően két
-fontosabb teszt van. Egyrészt a \texttt{test\_segmentation\_train.py} és \texttt{test\_translation\_train.py}
-fájlokban az kerül ellenőrzésre, hogy egy tanítási lépés után a modell belső állápotát leíró paraméterek
-megváltoztak-e. Másrészt a \texttt{test\_segmentation.py} és \texttt{test\_translation.py} fájlokban
-a modellek működésére vonatkozó tesztek van. Itt az kerül ellenőrzésre, hogy az ezen modellek által adott
-kimeneti tenzorok megfelelő dimenziójúak-e. A teszteket a \texttt{pytest} parancs kiadásával tudjuk lefuttatni
+különböző segédfüggvényeit fedik le.
+\begin{itemize}
+    \item \texttt{test\_features.py}: A nyers adatok feldolgozás során használt függvények tesztelése.
+    \item \texttt{test\_utils.py}: A futtatható állományból a szükséges adatokat (Assembly kód, címkék)
+        előállító függvények, valamint a \texttt{JSON} fájlok elmentését és betöltését végző metódusok
+        tesztelése.
+    \item \texttt{test\_segmentation.py}, \texttt{test\_translation.py}: Annak ellenőrzése, hogy a neurális hálók
+        által visszaadott tenzorok megfelelő dimenziójúak-e.
+    \item \texttt{test\_segmentation\_train.py}, \texttt{test\_translation\_train.py}: A tanítás során használt
+        metódusok (\texttt{padding}, metrikafüggvény, kimenet maszkolása) tesztelése. Továbbá annak ellenőrzése,
+        hogy egy tanítási lépés során változnak-e a modell belső állapotát leíró paraméterek.
+    \item \texttt{test\_train.py}: A folyamatjelző sáv működésének tesztelése.
+    \item \texttt{test\_reconstruct.py}: A program harmadik lépésének (az Assembly blokkokból és a 
+        maszkolt C kódból az eredeti C kód rekonsruálása) tesztelése.
+\end{itemize}
+A teszteket a \texttt{pytest} parancs kiadásával tudjuk lefuttatni
 a gyökér könyvtárból. A tesztelő beállításait a \texttt{pytest.ini} konfigurációs fájl tartalmazza.
 
 \subsection{Típusellenőrzés}
 A \texttt{Python} egy dinamikus típusozású nyelv, ugyanakkor lehetőség van típus annotációk megadására.
 Ezek a programot nem befolyásolják sem működésében, sem hatékonyságában, ugyanakkor a programozó számára
 nagy segítséget nyújthatnak a kód értelmezésében. Az ellenőrzést a \texttt{mypy} parancs kiadásával
-tudjuk elvégezni a gyökér könyvtárból. A beállíásokat a \texttt{mypy.ini} fájl tartalmazza, itt meg lehet
-adni többek között, hogy mennyire legyen szigorú az ellenőrzés, illetve hogy egyes modulokat ugorjon át.
+tudjuk elvégezni a gyökér könyvtárból. A beállításokat a \texttt{mypy.ini} fájl tartalmazza, itt meg lehet
+adni többek között, hogy mennyire legyen szigorú az ellenőrzés, illetve hogy egyes modulokat ugorjunk át az ellenőrzés során.
